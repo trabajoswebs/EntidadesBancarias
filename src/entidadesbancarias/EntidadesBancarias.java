@@ -294,10 +294,15 @@ public class EntidadesBancarias {
         BufferedReader entrada = null;
         StringBuilder cursos = new StringBuilder();
         
-        try {            
+        try {
+            crearFichero(DIRECTORY, "EntidadesBancarias.txt"); //creamos un nuevo fichero si no existe
+            
             fr = new FileReader(ENTBANCARIASFILEPATH);
             entrada = new BufferedReader(fr);
             cadena = entrada.readLine();
+            
+            if(cadena == null) throw new IOException("El fichero se encuentra vacio.");
+            
             while(cadena != null){
                 cursos.append(cadena);
                 cursos.append("\n");
@@ -306,7 +311,7 @@ public class EntidadesBancarias {
         } catch (FileNotFoundException ex) {
             Logger.getLogger(EntidadesBancarias.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(EntidadesBancarias.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("\n\tExcepción: " + ex.getMessage());
         } finally {
             try {
                 if (fr != null) {
