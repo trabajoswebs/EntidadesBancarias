@@ -12,7 +12,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Scanner;
-import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,23 +25,16 @@ public class EntidadesBancarias {
     public static final String ENTBANCARIASFILEPATH = DIRECTORY + "EntidadesBancarias.txt";
     
     static Scanner sc = new Scanner(System.in);
-    
-    static TreeMap<String, String> tmEEEE = new TreeMap<String, String>();//Map con entidades bancarias
+       
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        cargaEntidadesBancarias(tmEEEE);
         menuEntidadesBancarias();
-    }
-    
-    
-    static void cargaEntidadesBancarias(TreeMap<String, String> tmEEEE){
-        cargaDatos(ENTBANCARIASFILEPATH, tmEEEE);
-    }
-    
+    }   
+   
     
     /**
      * SUBMENU
@@ -110,11 +102,7 @@ public class EntidadesBancarias {
                  if (codEntidadBancaria.isEmpty()) {
                     throw new Exception("Debe introducir el código de la Sucursal Bancaria.");
                 }
-                
-                if (tmEEEE.containsKey(codEntidadBancaria)) { //Comprobamos la existencia del código de la entidad bancaria
-                    throw new Exception("La Entidad Bancaria ya existe.");
-                }
-                
+                                
                 System.out.println("Introduzca el nombre de la Entidad Bancaria:");
                 
                 nombreEntidadBancaria = sc.nextLine();                
@@ -141,12 +129,6 @@ public class EntidadesBancarias {
                 cadena = codEntidadBancaria.toUpperCase() + "," + nombreEntidadBancaria + "\n";
                 fichero.writeBytes(cadena);
                 
-                if (tmEEEE.containsKey(codEntidadBancaria)) { //Actualizamos el TreeMap
-                    tmEEEE.put(codEntidadBancaria, "," + nombreEntidadBancaria + "\n"); // añadimos el la sucursal bancaria del treemap
-                } else {
-                    tmEEEE.clear();//Eliminamos todos los datos del TreeMap
-                    cargaEntidadesBancarias(tmEEEE); //volcamos los datos del fichero al TreeMap y lo actualizamos
-                }
                 System.out.println("Se ha añadido correctamente la Entidad Bancaria en el fichero.");
                 System.out.println("Si desea añadir más Entidades Bancarias al fichero introduzca la letra: \"S\"");
                 continuar = sc.nextLine();
@@ -206,11 +188,7 @@ public class EntidadesBancarias {
                 if (codEntidad.trim().isEmpty()) {
                     throw new Exception("Debe introducir un código de asignatura válido.");
                 }
-                
-                if (! tmEEEE.containsKey(codEntidad)) { //Comprobamos la existencia del código de la sucursal bancaria
-                    throw new Exception("La sucursal no existe.");
-                }
-                
+                               
                 fichero = new RandomAccessFile(ENTBANCARIASFILEPATH, "r");
                 
                 if(fichero.length() == 0) throw new Exception("El fichero de las sucursales se encuentra vacio.");
@@ -243,7 +221,7 @@ public class EntidadesBancarias {
                while (cadena != null) {
                     indice = cadena.indexOf(",");
                     if(indice != -1){  
-                        if (! cadena.substring(0, indice).equalsIgnoreCase(codEntidad)) {
+                        if (! cadena.substring(0, indice).equalsIgnoreCase(codEntidad)) {  //Filtra el código que queremos eliminar
                             
                             ficheroNuevo.seek(ficheroNuevo.getFilePointer());
                             ficheroNuevo.writeBytes(cadena + "\n");
@@ -261,14 +239,7 @@ public class EntidadesBancarias {
                  if (destFichero.delete()) { //Borramos el fichero anterior
                      
                         if (ficheroOriginal.renameTo(destFichero)) {//Renombramos el fichero
-                            
-                            if (tmEEEE.containsKey(codEntidad)) { //Actualizamos el TreeMap
-                                tmEEEE.remove(codEntidad); // Eliminamos la sucursal bancaria del treemap
-                            }else{
-                                tmEEEE.clear();//Eliminamos todos los datos del TreeMap
-                                cargaEntidadesBancarias(tmEEEE); //Si ocurre un error volcamos los datos del fichero al TreeMap y lo actualizamos
-                            }
-
+                        
                         System.out.println("Se ha eliminado correctamente la entidad bancaria  " + codEntidad + " del fichero.");
                         System.out.println("Si desea eliminar más entidades bancarias de la lista introduzca la letra: \"S\"");
 
@@ -350,53 +321,6 @@ public class EntidadesBancarias {
 
         }
         return cursos.toString();
-    }
-    
-    /**
-     * Lee los datos que se encuentra en el fichero y los carga en el treeMap
-     */
-    public static void cargaDatos(String filePath, TreeMap<String, String> tm){
-        FileReader fr = null;
-        BufferedReader entrada = null;
-        int indice = 0;
-        String cadena, key, value;
-        
-        try {
-            fr = new FileReader(filePath);
-            entrada = new BufferedReader(fr);
-            
-            cadena = entrada.readLine();
-            
-            while(cadena != null){
-                indice = cadena.indexOf(",");
-                if (indice != -1) {
-                    key = cadena.substring(0, indice).toUpperCase();
-                    value = cadena.substring(indice + 1 ).toUpperCase();
-                    tm.put(key, value);
-                }
-                cadena = entrada.readLine();
-            }
-        }
-        catch (FileNotFoundException fnf) {
-            fnf.printStackTrace();
-        }
-        catch (IOException ioe) {
-            System.out.println("Ha ocurrido una excepción: " + ioe.getMessage());    
-        }
-        catch (Exception e) {
-            System.out.println("Ha ocurrido una excepción: " + e.getMessage());   
-        }finally{
-            try {
-                if (fr != null) {
-                    fr.close();
-                }
-                if(entrada != null){
-                    entrada.close();
-                }
-            } catch (IOException e) {
-                System.out.println("Se ha producido un error al intentar cerrar el fichero: " + e.getMessage());
-            }
-        }
     }
     
     /**
